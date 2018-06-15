@@ -13,6 +13,7 @@ class PhotosController extends Controller
         $this->validate(request(), [
             'photo' => 'required|image|max:2048' // jpeg. png, bmp, gif, o svg
         ]);
+
         $post->photos()->create([
             'url' => request()->file('photo')->store('posts', 'public')
         ]);

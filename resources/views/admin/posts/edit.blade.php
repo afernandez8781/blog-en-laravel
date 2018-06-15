@@ -26,7 +26,7 @@
                                         <button class="btn btn-danger btn-xs" style="position: absolute;">
                                             <i class="fa fa-remove"></i>
                                         </button>{{--{{ url($photo->url) }}--}}
-                                        <img class="img-responsive" src="/storage/{{ $post->photos->first()->url }}">
+                                        <img class="img-responsive" src="/storage/{{ $photo->url }}">
                                     </div>
                                 </form>
                             @endforeach
