@@ -9,7 +9,7 @@ class CategoriesController extends Controller
 {
     public function show(Category $category)
     {
-        return view('welcome', [
+        return view('pages.home', [
             'title' => "Publicaciones de la categoría '$category->name'",
             'posts' => $category->posts()->paginate()
         ]);

@@ -29,8 +29,8 @@
 
                 {!! $post->body !!}
 
-                </div>
             </div>
+        
 
             <footer class="container-flex space-between">
                 @include('partials.social-links', ['description' => $post->title])
