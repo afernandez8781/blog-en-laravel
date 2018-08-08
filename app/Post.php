@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     protected $fillable = [
-        'title', 'body', 'iframe', 'excerpt', 'published_at', 'category_id',
+        'title', 'body', 'iframe', 'excerpt', 'published_at', 'category_id', 'user_id'
     ];
 
     protected $dates = ['published_at'];
+
 
     protected static function boot()
     {
@@ -43,15 +44,49 @@ class Post extends Model
         return $this->hasMany(Photo::class);
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function scopePublished($query)
     {
-        $query->whereNotNull('published_at')
+        $query->with(['category', 'tags', 'owner', 'photos'])
+                ->whereNotNull('published_at')
                 ->where('published_at', '<=', Carbon::now() )
                 ->latest('published_at');
     }
 
+    public function scopeAllowed($query)
+    {
+        if( auth()->user()->can('view', $this) )
+        {
+            return $query;
+        }
+        
+        return $query->where('user_id', auth()->id());
+    }
+
+    public function scopeByYearAndMonth($query)
+    {
+        return $query->selectRaw('year(published_at) year')
+            ->selectRaw('month(published_at) month')
+            ->selectRaw('monthname(published_at) monthname')
+            ->selectRaw('count(*) posts')
+            ->groupBy('year', 'month', 'monthname')
+            ->orderBy('published_at');
+            
+    }
+
+    public function isPublished()
+    {
+        return ! is_null($this->published_at) && $this->published_at < today();
+    }
+
     public static function create(array $attributes = [])
     {
+        $attributes['user_id'] = auth()->id();
+
         $post = static::query()->create($attributes);
 
         $post->generateUrl();
@@ -107,5 +142,18 @@ class Post extends Model
         });
 
         return $this->tags()->sync($tagIds);
+    }
+
+    public function viewType($home = '')
+    {
+        if($this->photos->count() === 1):
+            return 'posts.photo';
+        elseif($this->photos->count() > 1):
+            return $home === 'home' ? 'posts.carousel-preview': 'posts.carousel';
+        elseif($this->iframe):
+            return 'posts.iframe';
+        else:
+            return 'posts.text';
+        endif;    
     }
 }

@@ -20,6 +20,10 @@ header nav li a:hover{
 	padding-bottom: 5px;
 }
 
+.c-gray-1 {
+    opacity: .6;
+}
+
 .logo img{
 	width: 150px;
 }

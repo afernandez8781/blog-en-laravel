@@ -5,58 +5,49 @@
     @if(Isset($title))
         <h3>{{ $title }}</h3>
     @endif
-    @foreach($posts as $post)
+    @forelse($posts as $post)
         <article class="post">
-            @if ($post->photos->count() === 1){{--{{ $post->photos->first()->url }}--}}
-            <figure><img src="/storage/{{ $post->photos->first()->url }}" alt="" class="img-responsive"></figure>
+
+            @include( $post->viewType('home') )
+
+            {{-- @if ($post->photos->count() === 1)
+                @inlude('posts.photo')
             @elseif($post->photos->count() > 1)
-                <div class="gallery-photos masonry" >
-                    @foreach($post->photos->take(4) as $photo)
-                    <figure class="grid-item grid-item--height2">
-                        @if($loop->iteration === 4)
-                            <div class="overlay">{{ $post->photos->count() }}
-                            Fotos</div>
-                        @endif{{--{{ url($photo->url) }}--}}
-                        <img src="/storage/{{ $photo->url }}" class="img-responsive" alt="">
-                    </figure>
-                    @endforeach
-                </div>
+                @include('posts.carousel-preview')
             @elseif($post->iframe)
-                <div class="video">
-                    {!! $post->iframe !!}
-                </div>
-            @endif
+                @include('posts.iframe')
+            @endif --}}
+
             <div class="content-post">
-                <header class="container-flex space-between">
-                    <div class="date">
-                        <span class="c-gray-1">{{ $post->published_at->format('M d') }}</span>
-                    </div>
-                    <div class="post-category">
-                        <span class="category text-capitalize">
-                            <a href="{{ route('categories.show', $post->category) }}">{{ $post->category->name }}</a>
-                        </span>
-                    </div>
-                </header>
+
+                @include('posts.header')
+
                 <h1>{{ $post->title }}</h1>
+
                 <div class="divider"></div>
+
                 <p>{{ $post->excerpt }}</p>
+
                 <footer class="container-flex space-between">
                     <div class="read-more">
-                        <a href="blog/{{ $post->url }}" class="text-uppercase c-green">Leer más</a>
+                        <a href="{{ route('posts.show', $post) }}" class="text-uppercase c-green">Leer más</a>
                     </div>
-                    <div class="tags container-flex">
-                        @foreach($post->tags as $tag)
-                            <span class="tag c-gray-1 text-capitalize"><a href="{{ route('tags.show', $tag) }}">#{{ $tag->name }}</a></span>
-                        @endforeach
-                    </div>
+                    @include('posts.tags')
                 </footer>
             </div>
         </article>
-        @endforeach
+
+        @empty
+        <article class="post">
+            <div class="content-post">
+                <h1>No hay publicaciones.</h1>
+            </div>
+        </article>
+        @endforelse
 
     </section><!-- fin del div.posts.container -->
 
-    {{ $posts->links() }}
+    {{ $posts->appends(request()->all())->links() }}
 
 
 @stop
