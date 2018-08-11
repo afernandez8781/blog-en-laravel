@@ -16,7 +16,8 @@
     @stack('styles')
 
 
-    @stack('scripts')
+    {{-- @stack('scripts') --}}
+
 </head>
 <body>
 <div id="app">
@@ -28,12 +29,19 @@
             <figure class="logo">
                 <img src="/img/logo.png" alt="">
             </figure>
-            @include('partials.nav')
+            
+            
+            <nav-bar></nav-bar>
+
+
         </div>
     </header>
 
-    {{-- Contenido --}}
-    @yield('content')
+    <div class="page-wrapper">
+        <transition name="slide-fade">
+            <router-view :key="$route.fullPath"></router-view>
+        </transition>
+    </div>
 
     <section class="footer">
         <footer>

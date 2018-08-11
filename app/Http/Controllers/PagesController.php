@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class PagesController extends Controller
 {
+    public function spa()
+    {
+        return view('pages.spa');
+    }
+
+    
     public function home()
     {
         $query = Post::published();
@@ -21,9 +27,12 @@ class PagesController extends Controller
             $query->whereYear('published_at', request('year'));
         }
 
-        $posts = $query->paginate();
+        $posts = $query->paginate(2);
 
-        // return $posts;
+        if( request()->wantsJson() )
+        {
+            return $posts;
+        }
 
         return view('pages.home', compact('posts'));
     }
@@ -36,14 +45,19 @@ class PagesController extends Controller
     public function archive()
     {
 
-        $archive = Post::published()->byYearAndMonth()->get();
-
-    	return view('pages.archive', [
+        $data = [
             'authors' => User::latest()->take(4)->get(),
             'categories' => Category::take(7)->get(),
             'posts' => Post::latest('published_at')->take(5)->get(),
-            'archive' => $archive
-        ]);
+            'archive' => Post::published()->byYearAndMonth()->get()
+        ];
+
+        if (request()->wantsJson())
+        {
+            return $data;
+        }
+
+    	return view('pages.archive', $data);
     }
 
     public function contact()
